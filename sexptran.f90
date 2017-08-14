@@ -22,7 +22,6 @@
 ! SOFTWARE.
 
 module sexptran
-  use input_wrapper_m
   implicit none
 
   integer, parameter :: dp=kind(0.0d0)
