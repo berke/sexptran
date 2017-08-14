@@ -41,6 +41,7 @@ program test_sexptran
   ! Get the first command line argument, which gives the name of the
   ! configuation file
   call get_command_argument(1,length=m)  ! First call to get length
+  if (m==0) stop 'Missing argument: Configuration file name'
   allocate(character(len=m) :: cfg_fn)   ! Allocate character string of proper length
   call get_command_argument(1,cfg_fn)    ! Second call to get the argument
 
