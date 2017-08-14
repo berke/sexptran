@@ -22,6 +22,7 @@
 ! SOFTWARE.
 
 module sexptran
+  use iso_fortran_env
   implicit none
 
   integer, parameter :: dp=kind(0.0d0)
