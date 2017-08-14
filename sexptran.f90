@@ -31,7 +31,8 @@ module sexptran
      integer :: unit
      logical :: is_open=.false.
    contains
-     procedure :: open_out=>out_channel_open, write=>out_channel_write
+     procedure :: open_out=>out_channel_open
+     procedure :: write=>out_channel_write
      final :: out_channel_cleanup
   end type out_channel
 
@@ -45,14 +46,16 @@ module sexptran
      logical :: error=.false.
      character(len=:),allocatable :: message
    contains
-     procedure :: set=>error_status_set,clear=>error_status_clear,check=>error_check
+     procedure :: set=>error_status_set
+     procedure :: clear=>error_status_clear
+     procedure :: check=>error_check
   end type error_status
 
   type(error_status), target :: default_error
 
   type, abstract :: sexp
      integer :: refcnt=0
-     type(error_status), pointer :: err=>default_error
+     type(error_status), pointer :: err
      contains
        procedure(write_intf), deferred :: write
        procedure(is_atom_intf), nopass, deferred :: is_atom
@@ -63,7 +66,7 @@ module sexptran
   abstract interface
      subroutine write_intf(this,oc,start)
        import
-       class(sexp), intent(in), target :: this
+       class(sexp) :: this
        class(out_channel) :: oc
        logical, intent(in), optional :: start
      end subroutine write_intf
@@ -106,7 +109,9 @@ module sexptran
      class(sexp), pointer :: car=>null()
      class(list_t), pointer :: cdr=>null()
    contains
-     procedure :: write=>list_write,set_car,set_cdr
+     procedure :: write=>list_write
+     procedure :: set_car
+     procedure :: set_cdr
      procedure, nopass :: is_atom=>list_is_atom
      final :: list_cleanup
   end type list_t
@@ -837,7 +842,7 @@ contains
 
   recursive subroutine list_write(this,oc,start)
     class(out_channel) :: oc
-    class(list_t), intent(in), target :: this
+    class(list_t) :: this
     logical, intent(in), optional :: start
 
     if (defval(.true.,start)) call oc%write('(')
@@ -855,8 +860,8 @@ contains
   end subroutine list_write
 
   subroutine atom_write(this,oc,start)
+    class(atom_t) :: this
     class(out_channel) :: oc
-    class(atom_t), intent(in), target :: this
     logical, intent(in), optional :: start
 
     call write_string(oc,this%content)

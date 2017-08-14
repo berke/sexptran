@@ -1,6 +1,7 @@
 ! Example program for the SEXPTRAN library
 !
-! Usage: simplest_example calendar.sexp
+! Usage: simplest_example
+! File calendar.sexp must be in the current directory
 ! 
 ! Copyright (c) 2017, Oguz Berke Antoine DURAK <berke.durak@gmail.com>
 !
