@@ -24,12 +24,13 @@ See test\_sexptran.f90 and simplest\_example.f90 for two usage examples.
 
 A good Fortran compiler and CMake.
 
-## Compilation
+## Compilation and installation
 
 	mkdir build
 	cd build
 	cmake ..
 	make
+	sudo make install
 
 For gfortran:
 
