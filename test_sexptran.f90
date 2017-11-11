@@ -27,6 +27,7 @@ program test_sexptran
   use iso_fortran_env
   implicit none
 
+  integer, parameter :: dp=kind(0.0d0)
   character(len=:),allocatable :: cfg_fn          ! Configuration file name
   integer :: m                                    ! Length of argument
   class(sexp),pointer :: cfg,grid,res             ! S-expressions for configuration, grid subexpression and result

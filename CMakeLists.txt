@@ -7,13 +7,13 @@ set(PROJECT_URL "https://github.com/berke/sexptran")
 
 project(sexptran)
 enable_language(Fortran)
-set(VERSION 1.1.0)
+set(VERSION 1.2.0)
 
 set(LIB_NAME ${CMAKE_PROJECT_NAME})
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -std=f2008 -fcheck=all -Wall -g -Wimplicit-interface \
-                         -Waliasing -Wconversion -Wintrinsic-shadow -march=native -fPIC")
+                         -cpp -Waliasing -Wconversion -Wintrinsic-shadow -march=native -fPIC")
 endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")

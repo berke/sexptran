@@ -90,9 +90,9 @@ module sexptran
   end interface tuple
 
   interface get_value
-     module procedure sexp_get_logical,sexp_get_double,sexp_get_float, &
-          sexp_get_integer,sexp_get_string,sexp_get_double_array, &
-          sexp_get_integer_array
+     module procedure sexp_get_logical,sexp_get_string
+     module procedure sexp_get_double,sexp_get_real,sexp_get_integer
+     module procedure sexp_get_real_array,sexp_get_double_array,sexp_get_integer_array
   end interface
 
   interface atom
@@ -266,111 +266,47 @@ contains
      end select
   end subroutine sexp_get_string
 
-  subroutine sexp_get_integer(this,x)
-    class(sexp), pointer, intent(in) :: this
-    integer, intent(out) :: x
-    integer :: st
+#define X sexp_get_integer
+#define Y integer
+#define Z 'integer'
+#include "sexptran_get_X.f90"
+#undef X
+#undef Y
+#undef Z
 
-    if (.not. associated(this)) return
-    if (this%err%error) return
-    select type(p=>this)
-       type is (atom_t)
-          read (p%content,*,iostat=st) x
-          if (st/=0) call this%err%set('Cannot read integer from '//p%content)
-       type is (list_t)
-          call this%err%set('Cannot get integer value from list')
-     end select
-  end subroutine sexp_get_integer
+#define X sexp_get_real
+#define Y real
+#define Z 'real'
+#include "sexptran_get_X.f90"
+#undef X
+#undef Y
+#undef Z
 
-  subroutine sexp_get_float(this,x)
-    class(sexp), pointer, intent(in) :: this
-    real, intent(out) :: x
-    integer :: st
+#define X sexp_get_double
+#define Y real(dp)
+#define Z 'double'
+#include "sexptran_get_X.f90"
+#undef X
+#undef Y
+#undef Z
 
-    if (.not. associated(this)) return
-    if (this%err%error) return
-    select type(p=>this)
-       type is (atom_t)
-          read (p%content,*,iostat=st) x
-          if (st/=0) call this%err%set('Cannot read float from '//p%content)
-       type is (list_t)
-          call this%err%set('Cannot get float value from list')
-     end select
-  end subroutine sexp_get_float
+#define X sexp_get_integer_array
+#define Y integer
+#include "sexptran_get_X_array.f90"
+#undef X
+#undef Y
 
-  subroutine sexp_get_double(this,x)
-    class(sexp), pointer, intent(in) :: this
-    real(dp), intent(out) :: x
-    integer :: st
+#define X sexp_get_real_array
+#define Y real
+#include "sexptran_get_X_array.f90"
+#undef X
+#undef Y
 
-    if (.not. associated(this)) return
-    if (this%err%error) return
-    select type(p=>this)
-       type is (atom_t)
-          read (p%content,*,iostat=st) x
-          if (st/=0) call this%err%set('Cannot read double from '//p%content)
-       type is (list_t)
-          call this%err%set('Cannot get double value from list')
-     end select
-  end subroutine sexp_get_double
-
-  subroutine sexp_get_integer_array(this,x)
-    class(sexp), intent(in), pointer :: this
-    integer, allocatable, intent(out) :: x(:)
-    class(list_t), pointer :: lst
-    integer :: m,i
-
-    if (.not. associated(this)) return
-    if (this%err%error) return
-    select type(p=>this)
-       type is (atom_t)
-          call this%err%set('Cannot get integer array value from atom')
-       type is (list_t)
-          lst=>p
-          m=0
-          do
-             if (.not. associated(lst)) exit
-             lst=>lst%cdr
-             m=m+1
-          end do
-          allocate(x(m))
-          lst=>p
-          do i=1,m
-             call get_value(lst%car,x(i))
-             if (erroneous(lst%car%err)) return
-             lst=>lst%cdr
-          end do
-     end select
-  end subroutine sexp_get_integer_array
-
-  subroutine sexp_get_double_array(this,x)
-    class(sexp), intent(in), pointer :: this
-    real(dp), allocatable, intent(out) :: x(:)
-    class(list_t), pointer :: lst
-    integer :: m,i
-
-    if (.not. associated(this)) return
-    if (this%err%error) return
-    select type(p=>this)
-       type is (atom_t)
-          call this%err%set('Cannot get double array value from atom')
-       type is (list_t)
-          lst=>p
-          m=0
-          do
-             if (.not. associated(lst)) exit
-             lst=>lst%cdr
-             m=m+1
-          end do
-          allocate(x(m))
-          lst=>p
-          do i=1,m
-             call get_value(lst%car,x(i))
-             if (erroneous(lst%car%err)) return
-             lst=>lst%cdr
-          end do
-     end select
-  end subroutine sexp_get_double_array
+#define X sexp_get_double_array
+#define Y real(dp)
+#include "sexptran_get_X_array.f90"
+#undef X
+#undef Y
 
   function erroneous(err)
     type(error_status), pointer :: err
