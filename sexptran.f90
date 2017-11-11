@@ -25,6 +25,10 @@ module sexptran
   use iso_fortran_env
   implicit none
 
+  private
+
+  public :: tuple,get_value,atom,list,pair,nth,field,sexp_load
+
   integer, parameter :: dp=kind(0.0d0)
 
   type :: out_channel
@@ -42,7 +46,7 @@ module sexptran
      procedure :: write=>line_wrapper_write
   end type line_wrapper
 
-  type :: error_status
+  type, public :: error_status
      logical :: error=.false.
      character(len=:),allocatable :: message
    contains
@@ -51,9 +55,7 @@ module sexptran
      procedure :: check=>error_check
   end type error_status
 
-  type(error_status), target :: default_error
-
-  type, abstract :: sexp
+  type, public, abstract :: sexp
      integer :: refcnt=0
      type(error_status), pointer :: err
      contains
@@ -89,7 +91,8 @@ module sexptran
 
   interface get_value
      module procedure sexp_get_logical,sexp_get_double,sexp_get_float, &
-          sexp_get_integer,sexp_get_string,sexp_get_double_array
+          sexp_get_integer,sexp_get_string,sexp_get_double_array, &
+          sexp_get_integer_array
   end interface
 
   interface atom
@@ -130,7 +133,7 @@ module sexptran
                 '0123456789' // &
                 '/,.-+_''!@%^&*{}[]|:?<>'
 
-  character, parameter, private :: &
+  character, parameter :: &
        lf=achar(10),cr=achar(13),tab=achar(9),backslash=achar(92),bs=achar(8)
 
   class(sexp), pointer :: nil=>null()
@@ -310,6 +313,35 @@ contains
           call this%err%set('Cannot get double value from list')
      end select
   end subroutine sexp_get_double
+
+  subroutine sexp_get_integer_array(this,x)
+    class(sexp), intent(in), pointer :: this
+    integer, allocatable, intent(out) :: x(:)
+    class(list_t), pointer :: lst
+    integer :: m,i
+
+    if (.not. associated(this)) return
+    if (this%err%error) return
+    select type(p=>this)
+       type is (atom_t)
+          call this%err%set('Cannot get integer array value from atom')
+       type is (list_t)
+          lst=>p
+          m=0
+          do
+             if (.not. associated(lst)) exit
+             lst=>lst%cdr
+             m=m+1
+          end do
+          allocate(x(m))
+          lst=>p
+          do i=1,m
+             call get_value(lst%car,x(i))
+             if (erroneous(lst%car%err)) return
+             lst=>lst%cdr
+          end do
+     end select
+  end subroutine sexp_get_integer_array
 
   subroutine sexp_get_double_array(this,x)
     class(sexp), intent(in), pointer :: this

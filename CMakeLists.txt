@@ -7,7 +7,7 @@ set(PROJECT_URL "https://github.com/berke/sexptran")
 
 project(sexptran)
 enable_language(Fortran)
-set(VERSION 1.0.0)
+set(VERSION 1.1.0)
 
 set(LIB_NAME ${CMAKE_PROJECT_NAME})
 
