@@ -93,6 +93,7 @@ module sexptran
      module procedure sexp_get_logical,sexp_get_string
      module procedure sexp_get_double,sexp_get_real,sexp_get_integer
      module procedure sexp_get_real_array,sexp_get_double_array,sexp_get_integer_array
+     module procedure sexp_get_real_array2,sexp_get_double_array2,sexp_get_integer_array2
   end interface
 
   interface atom
@@ -218,6 +219,31 @@ contains
      end select
   end function field
 
+  subroutine list_length(this,m,lst)
+    class(sexp), intent(in), pointer :: this
+    class(list_t), intent(out), pointer :: lst
+    integer, intent(out) :: m
+    class(list_t), pointer :: ptr
+
+    lst=>null()
+    m=0
+    if (.not. associated(this)) return
+    if (this%err%error) return
+    select type(p=>this)
+       type is (atom_t)
+          return
+       type is (list_t)
+          lst=>p
+          ptr=>p
+          m=0
+          do
+             if (.not. associated(ptr)) exit
+             ptr=>ptr%cdr
+             m=m+1
+          end do
+     end select
+  end subroutine list_length
+
   function nth(this,i) result(ptr)
     class(sexp), intent(in), pointer :: this
     class(sexp), pointer :: ptr
@@ -265,48 +291,6 @@ contains
           call this%err%set('Cannot get string value from list')
      end select
   end subroutine sexp_get_string
-
-#define X sexp_get_integer
-#define Y integer
-#define Z 'integer'
-#include "sexptran_get_X.f90"
-#undef X
-#undef Y
-#undef Z
-
-#define X sexp_get_real
-#define Y real
-#define Z 'real'
-#include "sexptran_get_X.f90"
-#undef X
-#undef Y
-#undef Z
-
-#define X sexp_get_double
-#define Y real(dp)
-#define Z 'double'
-#include "sexptran_get_X.f90"
-#undef X
-#undef Y
-#undef Z
-
-#define X sexp_get_integer_array
-#define Y integer
-#include "sexptran_get_X_array.f90"
-#undef X
-#undef Y
-
-#define X sexp_get_real_array
-#define Y real
-#include "sexptran_get_X_array.f90"
-#undef X
-#undef Y
-
-#define X sexp_get_double_array
-#define Y real(dp)
-#include "sexptran_get_X_array.f90"
-#undef X
-#undef Y
 
   function erroneous(err)
     type(error_status), pointer :: err
@@ -1094,4 +1078,64 @@ contains
     end subroutine x_decimal
   end subroutine read_token
   
+  ! Preprocessor-generated functions
+  ! Integers
+
+#define Y integer
+#define Z 'integer'
+  
+#define X sexp_get_integer
+#include "sexptran_get_X.f90"
+#undef X
+  
+#define X sexp_get_integer_array
+#include "sexptran_get_X_array.f90"
+#undef X
+  
+#define X sexp_get_integer_array2
+#include "sexptran_get_X_array2.f90"
+#undef X
+  
+#undef Y
+#undef Z
+  
+  ! Reals
+  
+#define Y real
+#define Z 'real'
+  
+#define X sexp_get_real
+#include "sexptran_get_X.f90"
+#undef X
+  
+#define X sexp_get_real_array
+#include "sexptran_get_X_array.f90"
+#undef X
+  
+#define X sexp_get_real_array2
+#include "sexptran_get_X_array2.f90"
+#undef X
+
+#undef Y
+#undef Z
+  
+  ! Doubles
+  
+#define Y real(dp)
+#define Z 'double'
+  
+#define X sexp_get_double
+#include "sexptran_get_X.f90"
+#undef X
+  
+#define X sexp_get_double_array
+#include "sexptran_get_X_array.f90"
+#undef X
+
+#define X sexp_get_double_array2
+#include "sexptran_get_X_array2.f90"
+#undef X
+  
+#undef Y
+#undef Z
 end module sexptran

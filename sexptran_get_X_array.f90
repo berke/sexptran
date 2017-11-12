@@ -4,25 +4,15 @@
     class(list_t), pointer :: lst
     integer :: m,i
 
-    if (.not. associated(this)) return
-    if (this%err%error) return
-    select type(p=>this)
-       type is (atom_t)
-          call this%err%set('Cannot get double array value from atom')
-       type is (list_t)
-          lst=>p
-          m=0
-          do
-             if (.not. associated(lst)) exit
-             lst=>lst%cdr
-             m=m+1
-          end do
-          allocate(x(m))
-          lst=>p
-          do i=1,m
-             call get_value(lst%car,x(i))
-             if (erroneous(lst%car%err)) return
-             lst=>lst%cdr
-          end do
-     end select
+    call list_length(this,m,lst)
+    if (.not. associated(lst)) then
+       call this%err%set('Cannot get '//Z//' array')
+       return
+    end if
+    allocate(x(m))
+    do i=1,m
+       call get_value(lst%car,x(i))
+       if (erroneous(lst%car%err)) return
+       lst=>lst%cdr
+    end do
   end subroutine X
