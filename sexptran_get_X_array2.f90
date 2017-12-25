@@ -5,6 +5,7 @@
     integer :: m,n,n2,i,j
     character(len=100) :: buf
 
+    if (.not. associated(this)) return
     call list_length(this,m,lst)
     if (.not. associated(lst)) then
        call this%err%set('Cannot get '//Z//' matrix')

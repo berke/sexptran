@@ -4,6 +4,7 @@
     class(list_t), pointer :: lst
     integer :: m,i
 
+    if (.not. associated(this)) return
     call list_length(this,m,lst)
     if (.not. associated(lst)) then
        call this%err%set('Cannot get '//Z//' array')
