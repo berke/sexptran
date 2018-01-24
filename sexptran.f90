@@ -105,10 +105,6 @@ module sexptran
      module procedure list_float_array,list_double_array
   end interface list
 
-  interface deref
-     module procedure deref_list,deref_sexp
-  end interface deref
-
   type, extends(sexp) :: list_t
      class(sexp), pointer :: car=>null()
      class(list_t), pointer :: cdr=>null()
@@ -416,15 +412,15 @@ contains
     this%refcnt=this%refcnt+1
   end subroutine sexp_ref
 
-  recursive subroutine deref_sexp(this)
+  recursive subroutine deref(this)
     class(sexp), pointer :: this
 
     this%refcnt=this%refcnt-1
     if (this%refcnt==0) deallocate(this)
-  end subroutine deref_sexp
+  end subroutine deref
 
   recursive subroutine deref_list(this)
-    type(list_t), pointer :: this
+    class(list_t), pointer :: this
 
     this%refcnt=this%refcnt-1
     if (this%refcnt==0) deallocate(this)
@@ -448,9 +444,9 @@ contains
 
   recursive subroutine set_cdr(cell,cdr)
     class(list_t) :: cell
-    type(list_t), pointer :: cdr
+    class(list_t), pointer :: cdr
 
-    if (associated(cell%cdr)) call deref(cell%cdr)
+    if (associated(cell%cdr)) call deref_list(cell%cdr)
     cell%cdr=>cdr
     if (associated(cdr)) call cdr%ref
   end subroutine set_cdr
@@ -615,19 +611,19 @@ contains
 
   function atom_float(u) result(this_ptr)
     real, intent(in) :: u
-    character(len=22) :: buf
+    character(len=23) :: buf
     class(sexp), pointer :: this_ptr
 
-    write(buf,'(G22.16)') u
+    write(buf,'(G23.16)') u
     this_ptr=>atom_string(trim(adjustl(buf)))
   end function atom_float
 
   function atom_double(u) result(this_ptr)
     real(dp), intent(in) :: u
-    character(len=22) :: buf
+    character(len=23) :: buf
     class(sexp), pointer :: this_ptr
 
-    write(buf,'(G22.16)') u
+    write(buf,'(G23.16)') u
     this_ptr=>atom_string(trim(adjustl(buf)))
   end function atom_double
 
@@ -735,7 +731,7 @@ contains
   function cons(car,cdr) result(this_ptr)
     class(sexp), pointer, intent(in) :: car
     class(sexp), pointer, intent(in), optional :: cdr
-    class(list_t), pointer :: this
+    class(list_t), pointer :: this,cdr_ptr
     class(sexp), pointer :: this_ptr
 
     allocate(this)
@@ -744,7 +740,8 @@ contains
        if (associated(cdr)) then
           select type(p=>cdr)
              class is (list_t)
-                call this%set_cdr(p)
+                cdr_ptr=>p
+                call this%set_cdr(cdr_ptr)
              class default
                 stop 'CDR must be list'
           end select

@@ -7,7 +7,7 @@ set(PROJECT_URL "https://github.com/berke/sexptran")
 
 project(sexptran)
 enable_language(Fortran)
-set(VERSION 1.3.2)
+set(VERSION 1.3.3)
 
 set(LIB_NAME ${CMAKE_PROJECT_NAME})
 
@@ -17,7 +17,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
 endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
-    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -stand f08 -free -implicitnone -check bounds -g")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fpp -stand f08 -free -implicitnone -check bounds -g")
 endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "PGI")

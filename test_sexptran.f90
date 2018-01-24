@@ -62,9 +62,9 @@ program test_sexptran
   call err%check                               ! Check for any errors so far
 
   ! Write summary of configuration
-  write (*,'("Grid:",T20,EN20.12,1X,EN20.12,1X,I8)') x0,x1,nx
+  write (*,'("Grid:",T20,EN21.12,1X,EN21.12,1X,I8)') x0,x1,nx
   write (*,'("Output file:",T20,A)') out_fn
-  write (*,'("Polynomial:",T20,99EN20.12)') poly
+  write (*,'("Polynomial:",T20,99EN21.12)') poly
 
   ! Perform computation.  It's a simple polynomial evaluation
   allocate(xs(nx),ys(nx))
