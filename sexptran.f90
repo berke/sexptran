@@ -27,7 +27,7 @@ module sexptran
 
   private
 
-  public :: tuple,get_value,atom,list,pair,nth,field,sexp_load
+  public :: tuple,get_value,get_value_alloc,atom,list,pair,nth,field,sexp_load
 
   integer, parameter :: dp=kind(0.0d0)
 
@@ -95,6 +95,10 @@ module sexptran
      module procedure sexp_get_real_array,sexp_get_double_array,sexp_get_integer_array
      module procedure sexp_get_real_array2,sexp_get_double_array2,sexp_get_integer_array2
   end interface
+
+  interface get_value_alloc
+     module procedure sexp_get_real_array_alloc,sexp_get_double_array_alloc,sexp_get_integer_array_alloc
+  end interface get_value_alloc
 
   interface atom
      module procedure atom_string,atom_integer,atom_float,atom_double, &
@@ -1085,9 +1089,11 @@ contains
 #include "sexptran_get_X.f90"
 #undef X
   
-#define X sexp_get_integer_array
+#define X1 sexp_get_integer_array_alloc
+#define X2 sexp_get_integer_array
 #include "sexptran_get_X_array.f90"
-#undef X
+#undef X1
+#undef X2
   
 #define X sexp_get_integer_array2
 #include "sexptran_get_X_array2.f90"
@@ -1105,9 +1111,11 @@ contains
 #include "sexptran_get_X.f90"
 #undef X
   
-#define X sexp_get_real_array
+#define X1 sexp_get_real_array_alloc
+#define X2 sexp_get_real_array
 #include "sexptran_get_X_array.f90"
-#undef X
+#undef X1
+#undef X2
   
 #define X sexp_get_real_array2
 #include "sexptran_get_X_array2.f90"
@@ -1125,9 +1133,11 @@ contains
 #include "sexptran_get_X.f90"
 #undef X
   
-#define X sexp_get_double_array
+#define X1 sexp_get_double_array_alloc
+#define X2 sexp_get_double_array
 #include "sexptran_get_X_array.f90"
-#undef X
+#undef X1
+#undef X2
 
 #define X sexp_get_double_array2
 #include "sexptran_get_X_array2.f90"
