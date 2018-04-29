@@ -40,7 +40,7 @@ NOTE: gfortran 6 produces spurious warnings such as:
 
 	Warning: Only array FINAL procedures declared for derived type ‘out_channel’ defined at (1), suggest also scalar one [-Wsurprising]
 
-For Intel (untested, my trial license expired):
+For Intel (tested with ifort 18):
 
 	cmake .. -DCMAKE_Fortran_COMPILER=/opt/intel/bin/ifort
 

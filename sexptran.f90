@@ -1,7 +1,7 @@
 ! SEXPTRAN
 ! Fortran library for reading and writing S-expressions
 ! 
-! Copyright (c) 2017, Oguz Berke Antoine DURAK <berke.durak@gmail.com>
+! Copyright (c) 2017-2018, Oguz Berke Antoine DURAK <berke.durak@gmail.com>
 !
 ! Permission is hereby granted, free of charge, to any person obtaining a copy
 ! of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,9 @@ module sexptran
 
   private
 
-  public :: tuple,get_value,get_value_alloc,atom,list,pair,nth,field,sexp_load
+  public :: &
+       tuple,get_value,get_value_alloc,atom,list,pair,nth, &
+       field,fieldlst,sexp_load
 
   integer, parameter :: dp=kind(0.0d0)
 
@@ -98,6 +100,7 @@ module sexptran
 
   interface get_value_alloc
      module procedure sexp_get_real_array_alloc,sexp_get_double_array_alloc,sexp_get_integer_array_alloc
+     module procedure sexp_get_real_array2_alloc,sexp_get_double_array2_alloc,sexp_get_integer_array2_alloc
   end interface get_value_alloc
 
   interface atom
@@ -163,15 +166,30 @@ contains
     class(error_status) :: err
     if (err%error) then
        write (error_unit,'("ERROR: ",A)') err%message
-       stop 'Fatal error'
+       error stop 'Fatal error'
     end if
   end subroutine error_check
 
-  function field(this,name) result(ptr)
+  function fieldlst(this,name) result(ptr)
+    class(sexp), intent(in), pointer :: this
+    class(sexp), pointer :: ptr
+    character(len=*), intent(in) ::name 
+    ptr=>field(this,name,only_pairs=.false.)
+  end function fieldlst
+
+  function field(this,name,only_pairs) result(ptr)
     class(sexp), intent(in), pointer :: this
     class(sexp), pointer :: ptr
     class(list_t), pointer :: lst
     character(len=*), intent(in) ::name 
+    logical, intent(in), optional :: only_pairs
+    logical :: only_pairs_val
+
+    if (present(only_pairs)) then
+       only_pairs_val=only_pairs
+    else
+       only_pairs_val=.true.
+    end if
 
     ptr=>null()
     if (.not. associated(this)) return
@@ -193,14 +211,18 @@ contains
                    select type(r=>q%car)
                         type is (atom_t)
                            if (r%content==name) then
-                              if (associated(q%cdr)) then
-                                 if (associated(q%cdr%cdr)) then
-                                    call this%err%set('Key '//name//' is not a pair')
+                              if (only_pairs_val) then
+                                 if (associated(q%cdr)) then
+                                    if (associated(q%cdr%cdr)) then
+                                       call this%err%set('Key '//name//' is not a pair')
+                                    else
+                                       ptr=>q%cdr%car
+                                    end if
                                  else
-                                    ptr=>q%cdr%car
+                                    call this%err%set('Key '//name//' has no associated value')
                                  end if
                               else
-                                 call this%err%set('Key '//name//' has no associated value')
+                                 ptr=>q%cdr
                               end if
                               return
                            else
@@ -747,7 +769,7 @@ contains
                 cdr_ptr=>p
                 call this%set_cdr(cdr_ptr)
              class default
-                stop 'CDR must be list'
+                error stop 'CDR must be list'
           end select
        end if
     else
@@ -1095,9 +1117,11 @@ contains
 #undef X1
 #undef X2
   
-#define X sexp_get_integer_array2
+#define X1 sexp_get_integer_array2_alloc
+#define X2 sexp_get_integer_array2
 #include "sexptran_get_X_array2.f90"
-#undef X
+#undef X1
+#undef X2
   
 #undef Y
 #undef Z
@@ -1117,9 +1141,11 @@ contains
 #undef X1
 #undef X2
   
-#define X sexp_get_real_array2
+#define X1 sexp_get_real_array2_alloc
+#define X2 sexp_get_real_array2
 #include "sexptran_get_X_array2.f90"
-#undef X
+#undef X1
+#undef X2
 
 #undef Y
 #undef Z
@@ -1139,9 +1165,11 @@ contains
 #undef X1
 #undef X2
 
-#define X sexp_get_double_array2
+#define X1 sexp_get_double_array2_alloc
+#define X2 sexp_get_double_array2
 #include "sexptran_get_X_array2.f90"
-#undef X
+#undef X1
+#undef X2
   
 #undef Y
 #undef Z

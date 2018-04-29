@@ -57,7 +57,17 @@ program test_sexptran
   call get_value(field(grid,'x0'),x0)       ! Get field values via overloaded get_value() function
   call get_value(field(grid,'x1'),x1)
   call get_value(field(grid,'nx'),nx)
-  call get_value(field(cfg,'polynomial'),poly) ! Get polynomial coefficients
+  call get_value_alloc(field(cfg,'polynomial'),poly) ! Get polynomial coefficients
+  call get_value(field(cfg,'output'),out_fn)   ! Get output file - will be allocated by get_valu()
+  call err%check                               ! Check for any errors so far
+
+  ! Extract computation parameters using simpler alternate syntax (not Sexplib-compatible)
+  grid=>fieldlst(cfg,'grid2')               ! Find the grid
+  call err%check                            ! If not found, grid will be null so check error
+  call get_value(field(grid,'x0'),x0)       ! Get field values via overloaded get_value() function
+  call get_value(field(grid,'x1'),x1)
+  call get_value(field(grid,'nx'),nx)
+  call get_value_alloc(field(cfg,'polynomial'),poly) ! Get polynomial coefficients
   call get_value(field(cfg,'output'),out_fn)   ! Get output file - will be allocated by get_valu()
   call err%check                               ! Check for any errors so far
 

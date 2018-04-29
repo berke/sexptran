@@ -1,9 +1,9 @@
 ! Example program for the SEXPTRAN library
 !
 ! Usage: simplest_example
-! File calendar.sexp must be in the current directory
+! It will load cases/calendar.sexp and save tmp/report.sexp
 ! 
-! Copyright (c) 2017, Oguz Berke Antoine DURAK <berke.durak@gmail.com>
+! Copyright (c) 2017-2018, Oguz Berke Antoine DURAK <berke.durak@gmail.com>
 !
 ! Permission is hereby granted, free of charge, to any person obtaining a copy
 ! of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ program simplest_example
   character(len=:), allocatable :: name
   integer, parameter :: month=11
 
-  cal=>sexp_load('calendar.sexp',err)
+  cal=>sexp_load('cases/calendar.sexp',err)
   call get_value(nth(field(cal,'months'),month),name)
   call err%check
   print *,'Month name: ',name
@@ -41,8 +41,9 @@ program simplest_example
          tuple(pair('month',atom(month)), &
                pair('name',atom(name)), &
                pair('input_calendar',cal)))
-  call rep%save('report.sexp',err)
+  call rep%save('tmp/report.sexp',err)
   call err%check
   
-  deallocate(cal,rep,name)
+  deallocate(rep) ! It is sufficient to deallocate "rep" since it points to "cal".
+  deallocate(name)
 end program simplest_example
