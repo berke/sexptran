@@ -21,6 +21,12 @@
 ! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
 
+#ifdef HAVE_ERROR_STOP
+#define error_stop(x) error stop x
+#else
+#define error_stop(x) stop x
+#endif
+
 module sexptran
   use iso_fortran_env
   implicit none
@@ -166,7 +172,7 @@ contains
     class(error_status) :: err
     if (err%error) then
        write (error_unit,'("ERROR: ",A)') err%message
-       error stop 'Fatal error'
+       error_stop('Fatal error')
     end if
   end subroutine error_check
 
@@ -769,7 +775,7 @@ contains
                 cdr_ptr=>p
                 call this%set_cdr(cdr_ptr)
              class default
-                error stop 'CDR must be list'
+                error_stop('CDR must be list')
           end select
        end if
     else

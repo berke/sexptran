@@ -13,15 +13,15 @@ set(LIB_NAME ${CMAKE_PROJECT_NAME})
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -std=f2008 -fcheck=all -Wall -g -Wimplicit-interface \
-                         -cpp -Waliasing -Wconversion -Wintrinsic-shadow -march=native -fPIC")
+                         -cpp -Waliasing -Wconversion -Wintrinsic-shadow -march=native -fPIC -DHAVE_ERROR_STOP")
 endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
-    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fpp -stand f15 -free -implicitnone -check all -g -traceback")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fpp -stand f15 -free -implicitnone -check all -g -traceback -DHAVE_ERROR_STOP")
 endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "PGI")
-    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Mallocatable=03 -C -g")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Mallocatable=03 -C -g -cpp")
 endif()
 
 add_executable(test_sexptran test_sexptran.f90 sexptran.f90)
