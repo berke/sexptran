@@ -5,7 +5,11 @@
     integer :: m,n,n2,i,j
     character(len=100) :: buf
 
-    if (.not. associated(this)) return
+    if (.not. associated(this)) then
+       allocate(x(0,0))
+       return
+    end if
+
     call list_length(this,m,lst)
     if (.not. associated(lst)) then
        call this%err%set('Cannot get '//Z//' matrix')
