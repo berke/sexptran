@@ -199,8 +199,8 @@ contains
 
     ptr=>null()
     if (.not. associated(this)) return
-    if (this%err%error) return
     ptr=>this
+    if (this%err%error) return
     select type(p=>this)
        type is (atom_t)
           call this%err%set('Expecting associative list, not atom')
