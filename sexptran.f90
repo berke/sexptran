@@ -35,21 +35,23 @@ module sexptran
 
   public :: &
        tuple,get_value,get_value_alloc,atom,list,pair,nth, &
-       field,fieldlst,sexp_load
+       field,fieldlst,sexp_load,list_length
 
   integer, parameter :: dp=kind(0.0d0)
 
   type :: out_channel
      integer :: unit
-     logical :: is_open=.false.
+     logical :: is_open=.false.,need_close=.true.
    contains
      procedure :: open_out=>out_channel_open
+     procedure :: set_unit=>out_channel_set_unit
      procedure :: write=>out_channel_write
      final :: out_channel_cleanup
   end type out_channel
 
   type, extends(out_channel) :: line_wrapper
      integer :: col=1,col_max=80
+     logical :: formatted=.true.
    contains
      procedure :: write=>line_wrapper_write
   end type line_wrapper
@@ -70,6 +72,7 @@ module sexptran
        procedure(write_intf), deferred :: write
        procedure(is_atom_intf), nopass, deferred :: is_atom
        procedure :: save=>sexp_save
+       procedure :: print=>sexp_print
        procedure :: ref=>sexp_ref
   end type sexp
 
@@ -118,7 +121,7 @@ module sexptran
      module procedure list_float_array,list_double_array
   end interface list
 
-  type, extends(sexp) :: list_t
+  type, extends(sexp), public :: list_t
      class(sexp), pointer :: car=>null()
      class(list_t), pointer :: cdr=>null()
    contains
@@ -360,11 +363,21 @@ contains
        call err%set('Cannot open output file '//fn)
     end if
     oc%is_open=.true.
+    oc%need_close=.true.
   end subroutine out_channel_open
+
+  subroutine out_channel_set_unit(oc,unit)
+    class(out_channel) :: oc
+    integer, intent(in) :: unit
+
+    oc%unit=unit
+    oc%is_open=.true.
+    oc%need_close=.false.
+  end subroutine out_channel_set_unit
 
   subroutine out_channel_cleanup(oc)
     type(out_channel) :: oc
-    if (oc%is_open) then
+    if (oc%is_open .and. oc%need_close) then
        close(oc%unit)
        oc%is_open=.false.
     end if
@@ -390,9 +403,17 @@ contains
           j=j+1
        end if
     end do
-    write (oc%unit) u
+    if (oc%formatted) then
+       write (oc%unit,'(A)',advance='no') u
+    else
+       write (oc%unit) u
+    end if
     if (j>oc%col_max) then
-       write (oc%unit) lf
+       if (oc%formatted) then
+          write (oc%unit,'()')
+       else
+          write (oc%unit) lf
+       end if
        j=1
     end if
     oc%col=j
@@ -796,6 +817,31 @@ contains
        defval=def
     end if
   end function defval
+
+  subroutine sexp_print(this,unit,err,nowrap)
+    class(sexp), intent(in) :: this
+    integer, intent(in) :: unit
+    type(error_status), intent(out) :: err
+    logical, intent(in), optional :: nowrap
+    type(out_channel) :: oc
+    type(line_wrapper) :: lw
+
+    if (defval(.false.,nowrap)) then
+      call oc%set_unit(unit)
+      call save(oc)
+    else
+      call lw%set_unit(unit)
+      call save(lw)
+    end if
+  contains
+    subroutine save(oc)
+      class(out_channel) :: oc
+
+      if (err%error) return
+      call this%write(oc)
+      call oc%write(lf)
+    end subroutine save
+  end subroutine sexp_print
 
   subroutine sexp_save(this,fn,err,nowrap)
     class(sexp), intent(in) :: this
