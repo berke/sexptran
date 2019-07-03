@@ -55,7 +55,7 @@ module sexptran
   end type line_wrapper
 
   type, public :: error_status
-     logical :: error=.false.
+     logical :: error=.false.,auto=.true.
      character(len=:),allocatable :: message
    contains
      procedure :: set=>error_status_set
@@ -412,6 +412,7 @@ contains
     call this%clear
     allocate(this%message,source=u)
     this%error=.true.
+    if (this%auto) call this%check
   end subroutine error_status_set
 
   subroutine lexer_init(this,u)
