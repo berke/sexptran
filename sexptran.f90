@@ -151,6 +151,8 @@ module sexptran
 
   class(sexp), pointer :: nil=>null()
 
+  type(error_status), target :: default_err
+
   type :: position
      integer :: pos=1,row=1,row_begin=1
   end type position
@@ -651,6 +653,7 @@ contains
 
     allocate(this)
     allocate(this%content,source=u)
+    this%err=>default_err
     this_ptr=>this
   end function atom_string
 
@@ -789,6 +792,7 @@ contains
     class(sexp), pointer :: this_ptr
 
     allocate(this)
+    this%err=>default_err
     call this%set_car(car)
     if (present(cdr)) then
        if (associated(cdr)) then
