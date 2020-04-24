@@ -855,7 +855,7 @@ contains
     type(out_channel) :: oc
     type(line_wrapper) :: lw
 
-    if (defval(.false.,nowrap)) then
+    if (defval(.true.,nowrap)) then
       call oc%open_out(fn,err)
       call save(oc)
     else
