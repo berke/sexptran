@@ -35,7 +35,7 @@ module sexptran
 
   public :: &
        tuple,get_value,get_value_alloc,atom,list,pair,nth, &
-       field,fieldlst,sexp_load,list_length
+       field,fieldlst,sexp_load,list_length,cons
 
   integer, parameter :: dp=kind(0.0d0)
 
